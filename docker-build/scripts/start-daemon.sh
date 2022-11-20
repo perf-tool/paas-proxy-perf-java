@@ -79,4 +79,4 @@ JVM_OPT="${JVM_OPT} -XX:+DoEscapeAnalysis -XX:ParallelGCThreads=${GC_THREADS} -X
 # gc log option
 JVM_OPT="${JVM_OPT} -Xlog:gc*=info,gc+phases=debug:$PROXY_HOME/logs/gc.log:time,uptime:filecount=10,filesize=100M"
 
-java $JAVA_OPT $JVM_OPT -Dlog4j.configurationFile=conf/log4j2.yaml -classpath $PROXY_HOME/lib/*:$PROXY_HOME/paas-proxy.jar:$PROXY_HOME/conf/*  com.github.perftool.paas.proxy.Main >>$PROXY_HOME/logs/stdout.log 2>>$PROXY_HOME/logs/stderr.log
+java $JAVA_OPT $JVM_OPT -Dlog4j.configurationFile=conf/log4j2.xml -classpath $PROXY_HOME/lib/*:$PROXY_HOME/paas-proxy.jar:$PROXY_HOME/conf/*  com.github.perftool.paas.proxy.Main >>$PROXY_HOME/logs/stdout.log 2>>$PROXY_HOME/logs/stderr.log

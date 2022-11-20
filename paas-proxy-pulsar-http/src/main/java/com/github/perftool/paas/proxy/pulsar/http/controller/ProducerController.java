@@ -129,11 +129,11 @@ public class ProducerController {
                                 return;
                             }
                             log.info("topic {} send success, msg id is {}", finalTopic, messageId);
-                            if (pulsarConfig.producerSemantic.equals(Semantic.AT_LEAST_ONCE)) {
+                            if (pulsarConfig.produceSemantic.equals(Semantic.AT_LEAST_ONCE)) {
                                 future.complete(new ResponseEntity<>(new ProduceMsgResp(System.currentTimeMillis() - startTime), HttpStatus.OK));
                             }
                         }));
-                if (pulsarConfig.producerSemantic.equals(Semantic.AT_MOST_ONCE)) {
+                if (pulsarConfig.produceSemantic.equals(Semantic.AT_MOST_ONCE)) {
                     future.complete(new ResponseEntity<>(new ProduceMsgResp(System.currentTimeMillis() - startTime), HttpStatus.OK));
                 }
             } catch (Exception ex) {
@@ -149,7 +149,7 @@ public class ProducerController {
         try {
             future.complete(pulsarClientService.createProducer(topicKey));
         } catch (Exception e) {
-            log.error("create producer exception ", e);
+            log.error("{} create producer exception ", topicKey, e);
             future.completeExceptionally(e);
         }
         return future;

@@ -43,8 +43,8 @@ public class PulsarConfig {
     @Value("${PULSAR_AUTO_UPDATE_PARTITION:false}")
     public boolean autoUpdatePartition;
 
-    @Value("${PULSAR_PRODUCER_SEMANTIC:AT_LEAST_ONCE}")
-    public Semantic producerSemantic;
+    @Value("${PULSAR_PRODUCE_SEMANTIC:AT_LEAST_ONCE}")
+    public Semantic produceSemantic;
 
     @Value("${PULSAR_OPERATION_TIMEOUT_SECONDS:15}")
     public int operationTimeoutSeconds;
