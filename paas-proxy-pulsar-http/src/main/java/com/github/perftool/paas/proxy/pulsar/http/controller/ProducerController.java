@@ -29,6 +29,7 @@ import com.github.perftool.paas.proxy.pulsar.service.PulsarClientService;
 import com.github.perftool.paas.common.module.Semantic;
 import com.github.perftool.paas.common.proxy.http.module.ProduceMsgReq;
 import com.github.perftool.paas.common.proxy.http.module.ProduceMsgResp;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pulsar.client.api.Producer;
@@ -43,7 +44,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
