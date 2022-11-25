@@ -53,7 +53,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
-        <version>2.7.5</version>
+        <version>3.0.0</version>
     </parent>
 
     <groupId>com.github.perftool</groupId>
@@ -99,7 +99,8 @@
                     <configLocation>./ci/checkstyle/checkstyle.xml</configLocation>
                     <suppressionsLocation>./ci/checkstyle/suppressions.xml</suppressionsLocation>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                    <encoding>UTF-8</encoding>
+                    <inputEncoding>UTF-8</inputEncoding>
+                    <outputEncoding>UTF-8</outputEncoding>
                     <excludes>**/proto/*</excludes>
                 </configuration>
             </plugin>
