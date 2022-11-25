@@ -23,12 +23,13 @@ import com.github.benmanes.caffeine.cache.AsyncCacheLoader;
 import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalListener;
-import com.github.perftool.paas.proxy.pulsar.config.PulsarConfig;
-import com.github.perftool.paas.proxy.pulsar.module.TopicKey;
-import com.github.perftool.paas.proxy.pulsar.service.PulsarClientService;
 import com.github.perftool.paas.common.module.Semantic;
 import com.github.perftool.paas.common.proxy.http.module.ProduceMsgReq;
 import com.github.perftool.paas.common.proxy.http.module.ProduceMsgResp;
+import com.github.perftool.paas.proxy.pulsar.config.PulsarConfig;
+import com.github.perftool.paas.proxy.pulsar.module.TopicKey;
+import com.github.perftool.paas.proxy.pulsar.service.PulsarClientService;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -55,18 +57,26 @@ import java.util.concurrent.atomic.AtomicInteger;
 @RequestMapping(path = "/v1/pulsar")
 public class ProducerController {
 
+    private static final String PROXY_PRODUCER_COUNT = "proxy_producer_total";
+
     @Autowired
     private PulsarClientService pulsarClientService;
 
     @Autowired
     private PulsarConfig pulsarConfig;
 
+    @Autowired
+    private MeterRegistry meterRegistry;
+
     private AsyncLoadingCache<TopicKey, Producer<byte[]>> producerCache;
+
+    private AtomicInteger producerCount;
 
     private final AtomicInteger atomicInteger = new AtomicInteger();
 
     @PostConstruct
     public void init() {
+        this.producerCount = meterRegistry.gauge(PROXY_PRODUCER_COUNT, new AtomicInteger());
         this.producerCache = Caffeine.newBuilder()
                 .expireAfterAccess(pulsarConfig.producerCacheSeconds, TimeUnit.SECONDS)
                 .maximumSize(pulsarConfig.producerMaxSize)
@@ -93,6 +103,11 @@ public class ProducerController {
                         return acquireFuture(key);
                     }
                 });
+    }
+
+    @Scheduled(fixedRate = 5000)
+    public void scheduleFixedDelayTask() {
+        this.producerCount.set(producerCache.asMap().size());
     }
 
     @PostMapping(path = "/tenants/{tenant}/namespaces/{namespace}/topics/{topic}/produce")
