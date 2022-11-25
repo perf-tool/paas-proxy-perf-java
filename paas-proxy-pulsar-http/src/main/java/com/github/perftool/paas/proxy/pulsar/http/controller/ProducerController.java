@@ -23,12 +23,14 @@ import com.github.benmanes.caffeine.cache.AsyncCacheLoader;
 import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalListener;
+import com.github.perftool.paas.common.metric.MetricBean;
 import com.github.perftool.paas.proxy.pulsar.config.PulsarConfig;
 import com.github.perftool.paas.proxy.pulsar.module.TopicKey;
 import com.github.perftool.paas.proxy.pulsar.service.PulsarClientService;
 import com.github.perftool.paas.common.module.Semantic;
 import com.github.perftool.paas.common.proxy.http.module.ProduceMsgReq;
 import com.github.perftool.paas.common.proxy.http.module.ProduceMsgResp;
+import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -45,9 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
@@ -64,6 +64,20 @@ public class ProducerController {
     private AsyncLoadingCache<TopicKey, Producer<byte[]>> producerCache;
 
     private final AtomicInteger atomicInteger = new AtomicInteger();
+
+    private ScheduledExecutorService scheduledExecutorService = new ScheduledThreadPoolExecutor(1);
+
+    @Autowired
+    private MeterRegistry meterRegistry;
+
+    private MetricBean metricBean;
+
+    private Runnable producerSizeReportTask = new Runnable() {
+        @Override
+        public void run() {
+            metricBean.recordCachedProducerNum(producerCache.asMap().size());
+        }
+    };
 
     @PostConstruct
     public void init() {
@@ -93,6 +107,8 @@ public class ProducerController {
                         return acquireFuture(key);
                     }
                 });
+        this.metricBean = new MetricBean(meterRegistry);
+        scheduledExecutorService.scheduleAtFixedRate(producerSizeReportTask, 1, 1, TimeUnit.SECONDS);
     }
 
     @PostMapping(path = "/tenants/{tenant}/namespaces/{namespace}/topics/{topic}/produce")
