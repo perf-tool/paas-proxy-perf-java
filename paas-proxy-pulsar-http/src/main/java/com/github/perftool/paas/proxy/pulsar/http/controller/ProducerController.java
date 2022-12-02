@@ -23,6 +23,7 @@ import com.github.benmanes.caffeine.cache.AsyncCacheLoader;
 import com.github.benmanes.caffeine.cache.AsyncLoadingCache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.RemovalListener;
+import com.github.perftool.paas.proxy.common.config.CommonConfig;
 import com.github.perftool.paas.common.module.Semantic;
 import com.github.perftool.paas.common.proxy.http.module.ProduceMsgReq;
 import com.github.perftool.paas.common.proxy.http.module.ProduceMsgResp;
@@ -64,6 +65,9 @@ public class ProducerController {
 
     @Autowired
     private PulsarConfig pulsarConfig;
+
+    @Autowired
+    private CommonConfig commonConfig;
 
     @Autowired
     private MeterRegistry meterRegistry;
@@ -143,7 +147,9 @@ public class ProducerController {
                                 future.complete(new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR));
                                 return;
                             }
-                            log.info("topic {} send success, msg id is {}", finalTopic, messageId);
+                            if (commonConfig.logProduceResult) {
+                                log.info("topic {}/{}/{} send success, msg id is {}", tenant, namespace, finalTopic, messageId);
+                            }
                             if (pulsarConfig.produceSemantic.equals(Semantic.AT_LEAST_ONCE)) {
                                 future.complete(new ResponseEntity<>(new ProduceMsgResp(System.currentTimeMillis() - startTime), HttpStatus.OK));
                             }
