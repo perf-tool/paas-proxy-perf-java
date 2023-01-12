@@ -42,7 +42,7 @@
         <annotations.version>13.0</annotations.version>
         <pulsar.verion>2.10.3</pulsar.verion>
         <!-- plugin -->
-        <checkstyle-plugin.version>3.2.0</checkstyle-plugin.version>
+        <checkstyle-plugin.version>3.2.1</checkstyle-plugin.version>
         <compiler-plugin.version>3.10.1</compiler-plugin.version>
         <jacoco.version>0.8.8</jacoco.version>
         <puppycrawl.version>10.3.2</puppycrawl.version>
