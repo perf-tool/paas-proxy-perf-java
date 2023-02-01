@@ -21,8 +21,8 @@ package com.github.perftool.paas.proxy.pulsar.service;
 
 import com.github.perftool.paas.proxy.pulsar.config.PulsarConfig;
 import com.github.perftool.paas.proxy.pulsar.module.TopicKey;
+import com.github.perftool.paas.proxy.pulsar.producer.EnhancedPulsarProducer;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.pulsar.client.api.Producer;
 import org.apache.pulsar.client.api.ProducerBuilder;
 import org.apache.pulsar.client.api.PulsarClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +52,7 @@ public class PulsarClientService {
         }
     }
 
-    public Producer<byte[]> createProducer(TopicKey topicKey) throws Exception {
+    public EnhancedPulsarProducer<byte[]> createProducer(TopicKey topicKey) throws Exception {
         ProducerBuilder<byte[]> builder = pulsarClient.newProducer().enableBatching(true);
         builder = builder.maxPendingMessages(pulsarConfig.producerMaxPendingMessage);
         builder = builder.autoUpdatePartitions(pulsarConfig.autoUpdatePartition);
@@ -62,7 +62,8 @@ public class PulsarClientService {
         } else {
             builder = builder.enableBatching(false);
         }
-        return builder.topic(concatTopicFn(topicKey)).create();
+        return new EnhancedPulsarProducer<byte[]>(builder.topic(concatTopicFn(topicKey)).create(),
+                pulsarConfig.sendRetryLimit, pulsarConfig.sendRetryInterval);
     }
 
     private String concatTopicFn(TopicKey topicKey) {

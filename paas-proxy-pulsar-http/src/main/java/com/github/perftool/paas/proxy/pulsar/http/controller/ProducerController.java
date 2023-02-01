@@ -29,12 +29,12 @@ import com.github.perftool.paas.common.proxy.http.module.ProduceMsgReq;
 import com.github.perftool.paas.common.proxy.http.module.ProduceMsgResp;
 import com.github.perftool.paas.proxy.pulsar.config.PulsarConfig;
 import com.github.perftool.paas.proxy.pulsar.module.TopicKey;
+import com.github.perftool.paas.proxy.pulsar.producer.EnhancedPulsarProducer;
 import com.github.perftool.paas.proxy.pulsar.service.PulsarClientService;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.pulsar.client.api.Producer;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -72,7 +72,7 @@ public class ProducerController {
     @Autowired
     private MeterRegistry meterRegistry;
 
-    private AsyncLoadingCache<TopicKey, Producer<byte[]>> producerCache;
+    private AsyncLoadingCache<TopicKey, EnhancedPulsarProducer<byte[]>> producerCache;
 
     private AtomicInteger producerCount;
 
@@ -84,7 +84,7 @@ public class ProducerController {
         this.producerCache = Caffeine.newBuilder()
                 .expireAfterAccess(pulsarConfig.producerCacheSeconds, TimeUnit.SECONDS)
                 .maximumSize(pulsarConfig.producerMaxSize)
-                .removalListener((RemovalListener<TopicKey, Producer<byte[]>>) (key, value, cause) -> {
+                .removalListener((RemovalListener<TopicKey, EnhancedPulsarProducer<byte[]>>) (key, value, cause) -> {
                     log.info("topic {} cache removed, because of {}", key.getTopic(), cause);
                     try {
                         value.close();
@@ -95,15 +95,17 @@ public class ProducerController {
                 .buildAsync(new AsyncCacheLoader<>() {
                     @NotNull
                     @Override
-                    public CompletableFuture<Producer<byte[]>> asyncLoad(@NotNull TopicKey key, @NotNull Executor executor) {
+                    public CompletableFuture<EnhancedPulsarProducer<byte[]>> asyncLoad(
+                            @NotNull TopicKey key, @NotNull Executor executor) {
                         return acquireFuture(key);
                     }
 
                     @NotNull
                     @Override
-                    public CompletableFuture<Producer<byte[]>> asyncReload(@NotNull TopicKey key,
-                                                                           @NotNull Producer<byte[]> oldValue,
-                                                                           @NotNull Executor executor) {
+                    public CompletableFuture<EnhancedPulsarProducer<byte[]>> asyncReload(
+                            @NotNull TopicKey key,
+                            @NotNull EnhancedPulsarProducer<byte[]> oldValue,
+                            @NotNull Executor executor) {
                         return acquireFuture(key);
                     }
                 });
@@ -131,7 +133,7 @@ public class ProducerController {
             topic = topic + "_" + index;
         }
         TopicKey topicKey = new TopicKey(tenant, namespace, topic);
-        final CompletableFuture<Producer<byte[]>> cacheFuture = producerCache.get(topicKey);
+        final CompletableFuture<EnhancedPulsarProducer<byte[]>> cacheFuture = producerCache.get(topicKey);
         String finalTopic = topic;
         cacheFuture.whenComplete((producer, e) -> {
             if (e != null) {
@@ -148,14 +150,19 @@ public class ProducerController {
                                 return;
                             }
                             if (commonConfig.logProduceResult) {
-                                log.info("topic {}/{}/{} send success, msg id is {}", tenant, namespace, finalTopic, messageId);
+                                log.info("topic {}/{}/{} send success, msg id is {}",
+                                        tenant, namespace, finalTopic, messageId);
                             }
                             if (pulsarConfig.produceSemantic.equals(Semantic.AT_LEAST_ONCE)) {
-                                future.complete(new ResponseEntity<>(new ProduceMsgResp(System.currentTimeMillis() - startTime), HttpStatus.OK));
+                                future.complete(
+                                        new ResponseEntity<>(
+                                                new ProduceMsgResp(
+                                                        System.currentTimeMillis() - startTime), HttpStatus.OK));
                             }
                         }));
                 if (pulsarConfig.produceSemantic.equals(Semantic.AT_MOST_ONCE)) {
-                    future.complete(new ResponseEntity<>(new ProduceMsgResp(System.currentTimeMillis() - startTime), HttpStatus.OK));
+                    future.complete(new ResponseEntity<>(
+                            new ProduceMsgResp(System.currentTimeMillis() - startTime), HttpStatus.OK));
                 }
             } catch (Exception ex) {
                 log.error("send async failed ", ex);
@@ -165,8 +172,8 @@ public class ProducerController {
         return Mono.fromFuture(future);
     }
 
-    private CompletableFuture<Producer<byte[]>> acquireFuture(TopicKey topicKey) {
-        CompletableFuture<Producer<byte[]>> future = new CompletableFuture<>();
+    private CompletableFuture<EnhancedPulsarProducer<byte[]>> acquireFuture(TopicKey topicKey) {
+        CompletableFuture<EnhancedPulsarProducer<byte[]>> future = new CompletableFuture<>();
         try {
             future.complete(pulsarClientService.createProducer(topicKey));
         } catch (Exception e) {

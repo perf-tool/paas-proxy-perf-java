@@ -64,4 +64,10 @@ public class PulsarConfig {
     @Value("${PULSAR_PRODUCER_MAX_SIZE:3000}")
     public long producerMaxSize;
 
+    @Value("${PULSAR_PRODUCER_SEND_RETRY_TIMES:0}")
+    public int sendRetryLimit;
+
+    @Value("${PULSAR_PRODUCER_SEND_RETRY_INTERVAL_SECOND:1}")
+    public int sendRetryInterval;
+
 }
