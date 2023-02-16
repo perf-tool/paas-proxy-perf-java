@@ -51,7 +51,7 @@ jobs:
         with:
           push: true
           tags: perftool/paas-proxy:perf-java
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
       - name: Save Docker Images
         run: docker pull perftool/paas-proxy:perf-java;docker save perftool/paas-proxy:perf-java -o paas-proxy-perf-java.tar.gz
       - uses: dev-drprasad/delete-tag-and-release@v0.2.0
