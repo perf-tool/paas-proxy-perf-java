@@ -37,7 +37,7 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- dependency -->
-        <annotations.version>24.0.0</annotations.version>
+        <annotations.version>24.0.1</annotations.version>
         <apollo.version>2.1.0</apollo.version>
         <annotations.version>13.0</annotations.version>
         <pulsar.verion>2.11.0</pulsar.verion>
