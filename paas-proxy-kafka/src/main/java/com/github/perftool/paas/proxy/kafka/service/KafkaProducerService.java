@@ -6,9 +6,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -101,8 +101,8 @@ public class KafkaProducerService {
         props.put(ProducerConfig.LINGER_MS_CONFIG, config.lingerMS);
         props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, config.compressionType);
         props.put(ProducerConfig.BATCH_SIZE_CONFIG, Integer.toString(config.batchSizeKb * 1024));
-        if (config.saslMechanism.equals(SecurityProtocol.SASL_PLAINTEXT.name) ||
-                config.saslMechanism.equals(SecurityProtocol.SASL_SSL.name)) {
+        if (config.saslMechanism.equals(SecurityProtocol.SASL_PLAINTEXT.name)
+                || config.saslMechanism.equals(SecurityProtocol.SASL_SSL.name)) {
             props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, SecurityProtocol.SASL_PLAINTEXT.name);
             props.put(SaslConfigs.SASL_MECHANISM, config.saslMechanism);
             String saslJaasConfig = String.format(
@@ -111,8 +111,8 @@ public class KafkaProducerService {
                     config.saslUsername, config.saslPassword);
             props.put(SaslConfigs.SASL_JAAS_CONFIG, saslJaasConfig);
         }
-        if (config.saslMechanism.equals(SecurityProtocol.SSL.name) ||
-                config.saslMechanism.equals(SecurityProtocol.SASL_SSL.name)) {
+        if (config.saslMechanism.equals(SecurityProtocol.SSL.name)
+                || config.saslMechanism.equals(SecurityProtocol.SASL_SSL.name)) {
             props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, config.truststorePath);
             props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, config.truststorePassword);
         }
