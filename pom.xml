@@ -28,8 +28,10 @@
         <module>paas-proxy-pulsar-http</module>
         <module>paas-proxy-common-http</module>
         <module>paas-proxy-pulsar</module>
+        <module>paas-proxy-kafka</module>
         <module>paas-proxy-common</module>
         <module>test-configuration</module>
+        <module>paas-proxy-kafka-http</module>
     </modules>
 
     <properties>
@@ -40,6 +42,7 @@
         <annotations.version>24.0.1</annotations.version>
         <apollo.version>2.1.0</apollo.version>
         <annotations.version>13.0</annotations.version>
+        <kafka.version>2.4.0</kafka.version>
         <pulsar.verion>2.11.0</pulsar.verion>
         <!-- plugin -->
         <checkstyle-plugin.version>3.2.1</checkstyle-plugin.version>
