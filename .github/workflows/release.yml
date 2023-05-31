@@ -54,7 +54,7 @@ jobs:
           platforms: linux/amd64
       - name: Save Docker Images
         run: docker pull perftool/paas-proxy:perf-java;docker save perftool/paas-proxy:perf-java -o paas-proxy-perf-java.tar.gz
-      - uses: dev-drprasad/delete-tag-and-release@v0.2.0
+      - uses: dev-drprasad/delete-tag-and-release@v1.0.1
         with:
           delete_release: true
           tag_name: latest_docker_image
