@@ -43,7 +43,7 @@
         <apollo.version>2.1.0</apollo.version>
         <annotations.version>13.0</annotations.version>
         <kafka.version>3.5.1</kafka.version>
-        <pulsar.verion>3.0.0</pulsar.verion>
+        <pulsar.verion>3.0.1</pulsar.verion>
         <!-- plugin -->
         <checkstyle-plugin.version>3.3.0</checkstyle-plugin.version>
         <compiler-plugin.version>3.10.1</compiler-plugin.version>
