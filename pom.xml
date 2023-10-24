@@ -50,7 +50,7 @@
         <jacoco.version>0.8.8</jacoco.version>
         <puppycrawl.version>10.3.2</puppycrawl.version>
         <spotbugs-maven-plugin.version>4.7.3.2</spotbugs-maven-plugin.version>
-        <surefire-plugin.version>3.1.2</surefire-plugin.version>
+        <surefire-plugin.version>3.2.1</surefire-plugin.version>
     </properties>
 
     <parent>
